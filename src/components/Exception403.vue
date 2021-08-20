@@ -66,12 +66,10 @@
 </template>
 
 <script>
-import signal from "../assets/signal-detection.png";
 
 export default {
   data() {
     return {
-      signal,
     };
   },
 };

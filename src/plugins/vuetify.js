@@ -7,7 +7,7 @@ Vue.use(Vuetify);
 
 const opts = {
   theme: {
-    dark: true,
+    dark: false,
     themes: {
       dark: {
         primary: colors.blue.darken2 /** this will change the UI (user dashboard) colour */,

@@ -14,15 +14,15 @@
               <v-text-field label="Password" shaped filled required type="password" v-model="password"
                             v-on:keydown.enter.prevent='handleSubmit'/>
             </v-form>
-            <span v-show="!this.name || !this.password">Enter your username and password</span>
+            <span>Click 
+              <router-link to="/register">register</router-link>
+              to sign up.
+            </span>
             {{ msg }}
           </v-card-text>
           <v-card-actions>
             <v-spacer/>
             <v-btn text @click="clear">Clear</v-btn>
-            <v-btn color="blue darken-2" v-on:click="handleNavigateToRegister">
-              Register
-            </v-btn>
             <v-btn color="blue darken-2" v-on:click="handleSubmit" v-bind:disabled="!this.name || !this.password">
               Login
             </v-btn>
@@ -47,26 +47,10 @@ export default {
   },
   methods: {
     async handleSubmit() {
-      const loginRequest = {name: this.name, password: this.password};
-      const response = await this.$http.post('http://localhost:8080/api/auth/login', loginRequest);
-      console.log(response)
-      //e.preventDefault()
-      // const data = await axios.post('auth/login', { name: this.name, password: this.password }).then(data => {
-      //   localstorageUtil.setItem('user', data.user);
-      //   localstorageUtil.setItem('token', data.token);
-      //   if (localstorageUtil.getItem('token') != null) {
-      //     this.$emit('loggedIn');
-      //     if (this.$route.params.nextUrl != null) {
-      //       this.$router.push(this.$route.params.nextUrl);
-      //     } else {
-      //       this.$router.push({ path: 'services' });
-      //     }
-      //   }
-      //   this.msg = 'login succeeded';
-      // });
-    },
-    async handleNavigateToRegister() {
-      await this.$router.push('/register');
+      // const loginRequest = {name: this.name, password: this.password};
+      // const response = await this.$http.post('http://localhost:8080/api/auth/login', loginRequest);
+      // console.log(response)
+      this.$router.push({ path: 'home' });
     },
     clear() {
       this.$refs.form.reset();
