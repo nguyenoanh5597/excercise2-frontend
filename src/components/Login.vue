@@ -34,7 +34,8 @@
 </template>
 
 <script>
-// import axios from '../axios';
+import axios from '../axios';
+import * as localstorageUtil from '../utils/localstorage';
 
 export default {
   data() {
@@ -47,9 +48,11 @@ export default {
   },
   methods: {
     async handleSubmit() {
-      // const loginRequest = {name: this.name, password: this.password};
-      // const response = await this.$http.post('http://localhost:8080/api/auth/login', loginRequest);
-      // console.log(response)
+      const loginRequest = {username: this.name, password: this.password};
+      const response = await axios.post('auth/login', loginRequest);
+      localstorageUtil.setItem("token", response.token);
+      localstorageUtil.setItem("currentUser", JSON.stringify(response.userInfo));
+      console.log(response)
       this.$router.push({ path: 'home' });
     },
     clear() {

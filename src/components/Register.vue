@@ -35,8 +35,9 @@
                 v-on:keydown.enter.prevent="handleSubmit"
               />
             </v-form>
-            <span>Click 
-              <router-link to="/login">login</router-link>
+            <span
+              >Click
+              <router-link to="/">login</router-link>
               to sign in.
             </span>
           </v-card-text>
@@ -58,7 +59,7 @@
 </template>
 
 <script>
-// import axios from "../axios";
+import axios from "../axios";
 
 export default {
   data() {
@@ -71,11 +72,14 @@ export default {
   },
   methods: {
     async handleSubmit() {
-      // const loginRequest = {name: this.name, password: this.password, displayName: this.displayName};
-      // const response = await axios.get("/users");
-      // const response = await axios.post('localhost:9090/auth/regsiter', loginRequest);
-      // console.log(response)
-      this.$router.push({ path: 'login' });
+      const registerReq = {
+        username: this.name,
+        password: this.password,
+        displayName: this.displayName,
+      };
+      const response = await axios.post("auth/register", registerReq);
+      console.log(response);
+      this.$router.push({ path: "/" });
     },
     validateForm() {
       return !this.name || !this.password;

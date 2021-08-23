@@ -4,16 +4,16 @@ import * as localstorageUtil from './utils/localstorage';
 const result = axios.create({
   headers: {
     'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin' : '*',
   },
 });
 result.interceptors.request.use(
   function(config) {
-    // const token = localstorageUtil.getItem('token');
-    const token = "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InBodTEyMyIsInJvbGVzIjpbInVzZXIiLCJlZGl0b3IiXSwiaWF0IjoxNjI5NDQyMzQ0LCJleHAiOjE2Mjk0NDI5NDR9.m817BNAl0kx4M0sMErk-k-AME-KZT6qmltMGMk2E7ZY";
+    const token = localstorageUtil.getItem('token');
     if (token) {
       config.headers['Authorization'] = 'Bearer ' + token;
     }
-    config.baseURL = `http://localhost:9090`;
+    config.baseURL = `http://localhost:8080`;
     return config;
   },
   function(error) {
