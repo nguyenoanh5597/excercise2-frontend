@@ -17,7 +17,7 @@ import Register from './components/Register';
 import HelloWorld from './components/HelloWorld';
 import Exception403 from './components/Exception403';
 import Home from './components/Home';
-import Editor from './components/Editor';
+import Editor from './components/editor/Editor';
 
 const routes = [
   { path: '', name: 'login', component: Login },

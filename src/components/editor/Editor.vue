@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import axios from "../axios";
+import axios from "../../axios";
 // import * as localstorageUtil from "../utils/localstorage";
 
 export default {
