@@ -72,14 +72,17 @@ export default {
   },
   methods: {
     async handleSubmit() {
-      const registerReq = {
-        username: this.name,
-        password: this.password,
-        displayName: this.displayName,
-      };
-      const response = await axios.post("auth/register", registerReq);
-      console.log(response);
-      this.$router.push({ path: "/" });
+      try {
+        const registerReq = {
+          username: this.name,
+          password: this.password,
+          displayName: this.displayName,
+        };
+        await axios.post("auth/register", registerReq);
+        this.$router.push({ path: "/" });
+      } catch (error) {
+        this.$toasted.show("register fail!", {type:"error"});
+      }
     },
     validateForm() {
       return !this.name || !this.password;

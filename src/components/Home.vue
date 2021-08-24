@@ -1,15 +1,9 @@
 <template>
   <v-container>
-    <v-app-bar app color="primary" dark>
-      <div class="d-flex align-center">
-        Welcome {{ currentUser.displayName }}
-      </div>
-      <v-spacer></v-spacer>
-      <v-btn @click="onClickLogout">
-        Logout
-        <v-icon right>mdi-logout</v-icon>
-      </v-btn>
-    </v-app-bar>
+    <navbar/>
+
+    <overlay :loading="loading" />
+
     <v-data-table
         :headers="headers"
         :items="editors"
@@ -19,11 +13,11 @@
         <v-toolbar flat>
           <v-toolbar-title>My Editors</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
-          <v-btn x-small class="mr-2" color="primary" @click="onClickRefresh">Refresh
-            <v-icon x-small right>mdi-refresh</v-icon>
+          <v-btn small class="mr-2" color="primary" @click="onClickRefresh">Refresh
+            <v-icon small right>mdi-refresh</v-icon>
           </v-btn>
-          <v-btn x-small class="mr-2" color="success" @click="onClickCreate">Create
-            <v-icon x-small right>mdi-plus</v-icon>
+          <v-btn small class="mr-2" color="success" @click="onClickCreate">Create
+            <v-icon small right>mdi-plus</v-icon>
           </v-btn>
         </v-toolbar>
       </template>
@@ -34,7 +28,7 @@
       <template v-slot:item.id="{ item }">
         <router-link :to="`/editor/${item.id}`">{{item.id}}</router-link>
       </template>
-      <template v-slot:item.isPublic="{ item }">
+      <template v-slot:item.public="{ item }">
         <v-checkbox v-model="item.public" @click="updateEditor(item)"></v-checkbox>
       </template>
       <template v-slot:no-data>No Data</template>
@@ -66,46 +60,47 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
   </v-container>
 </template>
 
 <script>
 import axios from "../axios";
-import * as localstorageUtil from "../utils/localstorage";
+import Navbar from './common/Navbar.vue';
+import Overlay from './common/Overlay.vue';
 
 export default {
+  components: {
+    Navbar, Overlay
+  },
   data: () => ({
-    currentUser: {},
     editedItem: {},
     editors: [],
     headers: [
       { text: 'Actions', value: 'actions', width: '150px' },
       { text: 'Id', value: 'id', width: '300px' },
       { text: 'Display Name', value: 'displayName', width: '300px' },
-      { text: 'Public', value: 'isPublic' },
+      { text: 'Public', value: 'public' },
     ],
     valid: false,
     createEditDialog: false,
+    loading: false,
     formTitle: '',
   }),
   computed: {},
   mounted() {
-    this.getCurrentUser();
+    this.getEditors();
   },
   methods: {
-    getCurrentUser() {
-      this.currentUser = JSON.parse(localstorageUtil.getItem("currentUser"));
-      this.getEditors();
-    },
     async getEditors() {
-      this.editors = await axios.get('editors');
-    },
-    async getEditorsByUserId(userId) {
-      this.editors = await axios.get(`editor/editors/${userId}`);
-    },
-    onClickLogout() {
-      localstorageUtil.clear();
-      this.$router.push({path: "/"});
+      try {
+        this.loading = true;
+        this.editors = await axios.get('editors');
+      } catch (e) {
+        console.log(e)
+      }finally{
+        this.loading = false;
+      }
     },
     onClickRefresh() {
       this.getEditors();
@@ -113,7 +108,6 @@ export default {
     onClickCreate() {
       this.createEditDialog = true;
       this.editedItem = {
-        userId: '',
         displayName: '',
         public: false,
       };
@@ -128,9 +122,9 @@ export default {
       const r = await axios.delete(`editor/${editor.id}`);
       if (r) {
         this.editors.splice(index, 1);
-        alert(r);
+        this.$toasted.show(r);
       } else {
-        alert("delete fail");
+        this.$toasted.show("delete fail!", {type:"error"});
       }
     },
     async onSaveEditor(editor) {
@@ -146,16 +140,18 @@ export default {
       if (r) {
         const index = this.editors.findIndex(e => e.id === editor.id);
         Object.assign(this.editors[index], r);
+        this.$toasted.show('update success');
       } else {
-        alert("update fail");
+        this.$toasted.show('update fail!', {type:"error"});
       }
     },
     async createEditor(editor) {
       const r = await axios.post('editors', editor);
       if (r) {
         this.editors.push(r);
+        this.$toasted.show('create success');
       } else {
-        alert("create fail");
+        this.$toasted.show('create fail!');
       }
     }
   },

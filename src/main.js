@@ -1,12 +1,13 @@
 import Vue from 'vue'
 import App from './App.vue'
 import vuetify from './plugins/vuetify'
-// import router from './router/index';
 import * as localstorageUtil from './utils/localstorage';
 import VueRouter from 'vue-router'
 import axios from 'axios';
+import Toasted from 'vue-toasted';
 
 Vue.use(VueRouter);
+Vue.use(Toasted, { duration: 5000, keepOnHover: true, position: 'bottom-right', type: 'success' });
 
 Vue.config.productionTip = false
 Vue.prototype.$http = axios;

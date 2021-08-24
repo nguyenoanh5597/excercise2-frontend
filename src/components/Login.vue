@@ -48,12 +48,15 @@ export default {
   },
   methods: {
     async handleSubmit() {
-      const loginRequest = {username: this.name, password: this.password};
-      const response = await axios.post('auth/login', loginRequest);
-      localstorageUtil.setItem("token", response.token);
-      localstorageUtil.setItem("currentUser", JSON.stringify(response.userInfo));
-      console.log(response)
-      this.$router.push({ path: 'home' });
+      try {
+        const loginRequest = {username: this.name, password: this.password};
+        const response = await axios.post('auth/login', loginRequest);
+        localstorageUtil.setItem("token", response.token);
+        localstorageUtil.setItem("currentUser", JSON.stringify(response.userInfo));
+        this.$router.push({ path: 'home' });
+      } catch (error) {
+        this.$toasted.show("login fail!", {type:"error"});
+      }
     },
     clear() {
       this.$refs.form.reset();
