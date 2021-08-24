@@ -4,7 +4,6 @@ import * as localstorageUtil from './utils/localstorage';
 const result = axios.create({
   headers: {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin' : '*',
   },
 });
 result.interceptors.request.use(

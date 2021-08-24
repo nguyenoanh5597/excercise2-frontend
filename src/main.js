@@ -25,7 +25,7 @@ const routes = [
   { path: '/home', name: 'home', component: Home },
   { path: '/exception-403', name: 'exception-403', component: Exception403 },
   { path: '/hello', name: 'hello', component: HelloWorld },
-  { path: '/editor/:userId', name: 'editor', component: Editor },
+  { path: '/editor/:id', name: 'editor', component: Editor },
 
 ]
 const router = new VueRouter({

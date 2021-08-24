@@ -13,6 +13,8 @@
         </template>
       </v-breadcrumbs>
     </v-app-bar>
+    <v-textarea v-textarea outlined label="Content" v-model="editor.content"></v-textarea>
+    <v-btn color="primary" class="mb-2 float-right" @click="updateEditor"> Save </v-btn>
   </v-container>
 </template>
 
@@ -22,27 +24,33 @@ import axios from "../../axios";
 
 export default {
   data: () => ({
-    user: {},
-    dirs: [
-      { text: "EDITORS", link: "/home" },
-      { text: "VIEW", disabled: true },
-    ],
+    editor: {},
+    dirs: [{ text: "EDITORS", link: "/home" }],
   }),
   computed: {},
 
   watch: {
-    "$route.params.userId": function (val, oldVal) {
+    "$route.params.id": function (val, oldVal) {
       if (val != oldVal) {
         console.log(val);
       }
     },
   },
   mounted() {
-    this.getUserById(this.$route.params.userId);
+    this.getEditorById(this.$route.params.id);
   },
   methods: {
-    async getUserById(userId) {
-      this.user = await axios.get(`user/${userId}`);
+    async getEditorById(id) {
+      this.editor = await axios.get(`editor/${id}`);
+      this.dirs.push({ text: this.editor.displayName, disable: true });
+    },
+    async updateEditor(){
+      const r = await axios.patch(`editor/update/${this.editor.id}`, this.editor);
+      if(r){
+        alert("update success");
+      }else{
+        alert("update fail");
+      }
     },
   },
 };

@@ -27,8 +27,8 @@
         <v-icon small color="primary" class="mr-2" @click="onClickEdit(item)">mdi-pencil</v-icon>
         <v-icon small color="error" class="mr-2" @click="onClickDelete(item, index)">mdi-delete</v-icon>
       </template>
-      <template v-slot:item.userId="{ item }">
-        <router-link :to="`/editor/${item.userId}`">{{item.userId}}</router-link>
+      <template v-slot:item.id="{ item }">
+        <router-link :to="`/editor/${item.id}`">{{item.id}}</router-link>
       </template>
       <template v-slot:item.isPublic="{ item }">
         <v-checkbox v-model="item.isPublic" @click="updateEditor(item)"></v-checkbox>
@@ -76,6 +76,7 @@ export default {
     editors: [],
     headers: [
       { text: 'Actions', value: 'actions', width: '150px' },
+      { text: 'Id', value: 'id', width: '300px' },
       { text: 'Display Name', value: 'displayName', width: '300px' },
       { text: 'Public', value: 'isPublic' },
     ],
@@ -143,7 +144,7 @@ export default {
       const r = await axios.patch(`editor/update/${editor.id}`, editor);
       if(r){
         const index = this.editors.findIndex(e=> e.id == editor.id);
-        this.editors[index] = r;
+        Object.assign(this.editors[index], r);
       }else{
         alert("update fail");
       }
