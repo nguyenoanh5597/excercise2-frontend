@@ -45,7 +45,7 @@ export default {
       this.dirs.push({ text: this.editor.displayName, disable: true });
     },
     async updateEditor(){
-      const r = await axios.patch(`editor/update/${this.editor.id}`, this.editor);
+      const r = await axios.put(`editor/${this.editor.id}`, this.editor);
       if(r){
         alert("update success");
       }else{

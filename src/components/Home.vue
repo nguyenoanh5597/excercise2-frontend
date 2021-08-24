@@ -11,16 +11,20 @@
       </v-btn>
     </v-app-bar>
     <v-data-table
-      :headers="headers"
-      :items="editors"
-      disable-sort
+        :headers="headers"
+        :items="editors"
+        disable-sort
     >
       <template v-slot:top>
         <v-toolbar flat>
           <v-toolbar-title>My Editors</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
-          <v-btn x-small class="mr-2" color="primary" @click="onClickRefresh">Refresh<v-icon x-small right>mdi-refresh</v-icon></v-btn>
-          <v-btn x-small class="mr-2" color="success" @click="onClickCreate">Create<v-icon x-small right>mdi-plus</v-icon></v-btn>
+          <v-btn x-small class="mr-2" color="primary" @click="onClickRefresh">Refresh
+            <v-icon x-small right>mdi-refresh</v-icon>
+          </v-btn>
+          <v-btn x-small class="mr-2" color="success" @click="onClickCreate">Create
+            <v-icon x-small right>mdi-plus</v-icon>
+          </v-btn>
         </v-toolbar>
       </template>
       <template v-slot:item.actions="{ item, index }">
@@ -31,7 +35,7 @@
         <router-link :to="`/editor/${item.id}`">{{item.id}}</router-link>
       </template>
       <template v-slot:item.isPublic="{ item }">
-        <v-checkbox v-model="item.isPublic" @click="updateEditor(item)"></v-checkbox>
+        <v-checkbox v-model="item.public" @click="updateEditor(item)"></v-checkbox>
       </template>
       <template v-slot:no-data>No Data</template>
     </v-data-table>
@@ -49,7 +53,7 @@
                   <v-text-field v-model="editedItem.displayName" label="Display Name" required></v-text-field>
                 </v-col>
                 <v-col cols="12" sm="6" md="4">
-                  <v-checkbox v-model="editedItem.isPublic" label="Public"></v-checkbox>
+                  <v-checkbox v-model="editedItem.public" label="Public"></v-checkbox>
                 </v-col>
               </v-row>
             </v-form>
@@ -84,77 +88,73 @@ export default {
     createEditDialog: false,
     formTitle: '',
   }),
-  computed: {
-  },
+  computed: {},
   mounted() {
     this.getCurrentUser();
-    // this.getEditors();
   },
   methods: {
     getCurrentUser() {
       this.currentUser = JSON.parse(localstorageUtil.getItem("currentUser"));
-      this.getEditorsByUserId(this.currentUser.userId);
+      this.getEditors();
     },
     async getEditors() {
-      this.editors = await axios.get('editor/all');
+      this.editors = await axios.get('editors');
     },
     async getEditorsByUserId(userId) {
       this.editors = await axios.get(`editor/editors/${userId}`);
     },
     onClickLogout() {
       localstorageUtil.clear();
-      this.$router.push({ path: "/" });
+      this.$router.push({path: "/"});
     },
     onClickRefresh() {
-      this.getEditorsByUserId(this.currentUser.userId);
+      this.getEditors();
     },
     onClickCreate() {
       this.createEditDialog = true;
       this.editedItem = {
         userId: '',
         displayName: '',
-        isPublic: false,
+        public: false,
       };
       this.formTitle = 'Create';
     },
     onClickEdit(editor) {
       this.createEditDialog = true;
-      this.editedItem = editor;
+      this.editedItem = Object.assign({}, editor);
       this.formTitle = 'Edit';
     },
     async onClickDelete(editor, index) {
-      const r = await axios.delete(`editor/delete/${editor.id}`);
-      if(r){
+      const r = await axios.delete(`editor/${editor.id}`);
+      if (r) {
         this.editors.splice(index, 1);
         alert(r);
-      }else{
+      } else {
         alert("delete fail");
       }
     },
     async onSaveEditor(editor) {
-      if(editor.id){
+      if (editor.id) {
         this.updateEditor(editor);
-      }else{
+      } else {
         this.createEditor(editor)
       }
       this.createEditDialog = false;
     },
-    async updateEditor(editor){
-      editor.userId = this.currentUser.userId;
-      const r = await axios.patch(`editor/update/${editor.id}`, editor);
-      if(r){
-        const index = this.editors.findIndex(e=> e.id == editor.id);
+    async updateEditor(editor) {
+      const r = await axios.put(`editor/${editor.id}`, editor);
+      if (r) {
+        const index = this.editors.findIndex(e => e.id === editor.id);
         Object.assign(this.editors[index], r);
-      }else{
+      } else {
         alert("update fail");
       }
     },
-    async createEditor(editor){
-      editor.userId = this.currentUser.userId;
-      const r = await axios.post('editor/create', editor);
-      if(r){
+    async createEditor(editor) {
+      const r = await axios.post('editors', editor);
+      if (r) {
         this.editors.push(r);
-      }else{
+      } else {
         alert("create fail");
       }
     }
