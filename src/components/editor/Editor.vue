@@ -45,6 +45,7 @@ export default {
     editor: {},
     dirs: [{ text: "EDITORS", link: "/home" }],
     loading: false,
+    intervalId: null,
   }),
   computed: {},
 
@@ -57,6 +58,7 @@ export default {
   },
   mounted() {
     this.getEditorById();
+    this.autoRefresh();
   },
   methods: {
     async getEditorById() {
@@ -81,7 +83,16 @@ export default {
         this.$toasted.show("update fail!", {type:"error"});
       }
     },
+    autoRefresh() {
+      this.intervalId = setInterval(async() => {
+        this.editor = await axios.get(`editor/${this.$route.params.id}`);
+      }, 5000);
+    },
   },
+  beforeDestroy () {
+    clearInterval(this.intervalId)
+  }
 };
 </script>
+
 
