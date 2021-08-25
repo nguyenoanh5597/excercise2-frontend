@@ -46,6 +46,7 @@ export default {
     dirs: [{ text: "EDITORS", link: "/home" }],
     loading: false,
     intervalId: null,
+    pollingCancel: null,
   }),
   computed: {},
 
@@ -73,7 +74,7 @@ export default {
       }finally{
         this.loading = false;
       }
-      
+
     },
     async updateEditor() {
       try {
@@ -84,14 +85,49 @@ export default {
       }
     },
     autoRefresh() {
-      this.intervalId = setInterval(async() => {
-        this.editor = await axios.get(`editor/${this.$route.params.id}`);
-      }, 5000);
+      const CancelToken = axios.CancelToken;
+      this.pollingCancel = CancelToken.source();
+
+      const longPolling = async () => {
+        try {
+          const event = await axios.get(`event/editor/${this.$route.params.id}`, {
+            cancelToken: this.pollingCancel.token,
+          });
+          this.processEvent(event);
+          await longPolling();
+        } catch (e) {
+          if (e.message === 'STOP_LONG_POLLING') {
+            // expected
+          } else {
+            throw e;
+          }
+        }
+      }
+      longPolling();
     },
+    processEvent(event) {
+      const {editorId, eventId, eventType, data} = event;
+      if (editorId !== this.editor.id || !eventType) {
+        console.log('discard invalid event', event);
+        // wtf?
+        return;
+      }
+      console.log('eventId',eventId, 'eventType', eventType, 'data', data);
+      switch (eventType) {
+        case 'EDITOR_CONTENT_UPDATE': {
+          console.log('update editor content!');
+          this.editor.content = data.content;
+          break
+        }
+      }
+    }
   },
   beforeDestroy () {
-    clearInterval(this.intervalId)
-  }
+    // clearInterval(this.intervalId)
+    if (this.pollingCancel) {
+      this.pollingCancel.cancel('STOP_LONG_POLLING');
+    }
+  },
 };
 </script>
 
