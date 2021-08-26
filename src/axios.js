@@ -6,6 +6,7 @@ const result = axios.create({
     'Content-Type': 'application/json',
   },
 });
+result.CancelToken = axios.CancelToken;
 result.interceptors.request.use(
   function(config) {
     const token = localstorageUtil.getItem('token');
