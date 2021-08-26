@@ -1,8 +1,7 @@
 import axios from '@/axios';
 
 class EventManager {
-  editorUpdateListeners = {};
-  editorLiveUpdateListeners = {};
+  listeners = {};
   running = false;
 
   start = async () => {
@@ -29,49 +28,39 @@ class EventManager {
 
   processEvent = (event) => {
     // notify the listeners
-    const {editorId, eventId, eventType, data} = event;
-    console.log('eventId', eventId, 'eventType', eventType, 'editorId', editorId, 'data', data)
-    console.log(this.editorUpdateListeners);
-    switch (eventType) {
-      case 'EDITOR_CONTENT_UPDATE': {
-        if (this.editorUpdateListeners[editorId]) {
-          this.editorUpdateListeners[editorId].forEach(callback => {
-            try {
-              callback(event);
-            } catch (e) {
-              // ignore
-            }
-          })
+    const {editorId, eventType,} = event;
+    // console.log('eventId', eventId, 'eventType', eventType, 'editorId', editorId, 'data', data)
+    if (this.listeners[eventType][editorId]) {
+      this.listeners[eventType][editorId].forEach(callback => {
+        try {
+          callback(event);
+        } catch (e) {
+          // ignore
         }
-        break
-      }
-      case 'EDITOR_CONTENT_LIVE_UPDATE': {
-        if (this.editorLiveUpdateListeners[editorId]) {
-          this.editorLiveUpdateListeners[editorId].forEach(callback => {
-            try {
-              callback(event);
-            } catch (e) {
-              // ignore
-            }
-          })
-        }
-        break
-      }
+      })
     }
   }
 
   onEditorUpdate = (editorId, callback) => {
-    if (!this.editorUpdateListeners[editorId]) {
-      this.editorUpdateListeners[editorId] = [];
-    }
-    this.editorUpdateListeners[editorId].push(callback);
+    this.addListener('EDITOR_UPDATE', editorId, callback);
   }
 
   onEditorLiveUpdate = (editorId, callback) => {
-    if (!this.editorLiveUpdateListeners[editorId]) {
-      this.editorLiveUpdateListeners[editorId] = [];
+    this.addListener('EDITOR_CONTENT_LIVE_UPDATE', editorId, callback);
+  }
+
+  onEditorVisibilityChanged = (editorId, callback) => {
+    this.addListener('EDITOR_VISIBILITY_CHANGED', editorId, callback);
+  }
+
+  addListener = (eventType, editorId, callback) => {
+    if (!this.listeners[eventType]) {
+      this.listeners[eventType] = {};
     }
-    this.editorLiveUpdateListeners[editorId].push(callback);
+    if (!this.listeners[eventType][editorId]) {
+      this.listeners[eventType][editorId] = [];
+    }
+    this.listeners[eventType][editorId].push(callback);
   }
 }
 

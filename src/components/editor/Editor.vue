@@ -16,15 +16,18 @@
           <v-icon small right>mdi-refresh</v-icon>
         </v-btn>
         <v-btn small class="mr-2" color="success" @click="updateEditor"
-          >Save</v-btn
+        >Save
+        </v-btn
         >
-        <br /><br />
+        <br/><br/>
         <!-- <v-textarea
           outlined
           label="Content"
           v-model="editor.content"
         ></v-textarea> -->
-        <quill-editor ref="myQuillEditor" v-model="editor.content" @change="onEditorTextChange"/>
+        <quill-editor ref="myQuillEditor"
+                      v-model="editor.content"
+                      @ready="onEditorReady"/>
       </div>
     </div>
 
@@ -50,6 +53,7 @@ export default {
     dirs: [{text: "EDITORS", link: "/home"}],
     loading: false,
     sourceId: new Date().getTime() + '',
+    quill: undefined,
   }),
   computed: {},
 
@@ -87,30 +91,54 @@ export default {
       }
     },
     autoRefresh() {
-      eventManager.onEditorUpdate(this.$route.params.id, (event) => {
+      let editorId = this.$route.params.id;
+      eventManager.onEditorUpdate(editorId, (event) => {
         const {data} = event;
-        console.log(event);
-        this.editor.content = data.content;
+        // this.setQuillContent(data.content);
+        if (data.public === "true") {
+          window.location.reload();
+        }
       })
 
-      eventManager.onEditorLiveUpdate(this.$route.params.id, (event) => {
+      eventManager.onEditorLiveUpdate(editorId, (event) => {
         const {data} = event;
-        console.log(event);
         if (data.sourceId === this.sourceId) {
-          console.log('ignore event sent by me');
           return
         }
-        this.editor.content = data.content;
+        this.setQuillContent(data.content);
+      })
+
+      eventManager.onEditorVisibilityChanged(editorId, (event) => {
+        const {data} = event;
+        const isPublic = data.public === 'true';
+        if (!isPublic) {
+          alert('You cannot view this page anymore!');
+          window.location.reload();
+        }
+      })
+
+    },
+    onEditorReady(quill) {
+      this.quill = quill;
+      quill.on('text-change', (delta, oldDelta, source) => {
+        if (source === 'user') {
+          axios.post(`event/editor/liveEvents`, {
+            content: JSON.stringify(this.quill.getContents()),
+            editorId: this.editor.id,
+            sourceId: this.sourceId,
+          });
+        }
       })
     },
-    async onEditorTextChange(e) {
-      console.log(e);
-      await axios.post(`event/editor/liveEvents`, {
-        content: this.editor.content,
-        editorId: this.editor.id,
-        sourceId: this.sourceId,
-      });
-    },
+    setQuillContent(content) {
+      if (this.quill) {
+        let delta = JSON.parse(content);
+        if (delta) {
+          this.quill.setContents(delta, 'silent')
+        }
+      }
+    }
+
   },
   beforeDestroy() {
     // TODO: remove listener
