@@ -5,13 +5,7 @@ import * as localstorageUtil from './utils/localstorage';
 import VueRouter from 'vue-router'
 import axios from 'axios';
 import Toasted from 'vue-toasted';
-
-Vue.use(VueRouter);
-Vue.use(Toasted, { duration: 5000, keepOnHover: true, position: 'bottom-right', type: 'success' });
-
-Vue.config.productionTip = false
-Vue.prototype.$http = axios;
-
+import VueQuillEditor from 'vue-quill-editor'
 
 import Login from './components/Login';
 import Register from './components/Register';
@@ -19,6 +13,20 @@ import HelloWorld from './components/HelloWorld';
 import Exception403 from './components/Exception403';
 import Home from './components/Home';
 import Editor from './components/editor/Editor';
+
+import 'quill/dist/quill.core.css' // import styles
+import 'quill/dist/quill.snow.css' // for snow theme
+import 'quill/dist/quill.bubble.css' // for bubble theme
+
+Vue.use(VueRouter);
+Vue.use(VueQuillEditor)
+Vue.use(Toasted, { duration: 5000, keepOnHover: true, position: 'bottom-right', type: 'success' });
+
+Vue.config.productionTip = false
+Vue.prototype.$http = axios;
+
+
+
 
 const routes = [
   { path: '', name: 'login', component: Login },
@@ -55,10 +63,5 @@ new Vue({
   router,
   render: h => h(App)
 }).$mount('#app')
-// new Vue({
-//   el: '#app',
-//   router,
-//   components: { App },
-//   template: '<App/>',
-//   vuetify,
-// });
+
+
