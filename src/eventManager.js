@@ -10,15 +10,17 @@ class EventManager {
       return
     }
     this.running = true;
+    let l = await axios.post(`event/listeners`);
     const longPolling = async () => {
       try {
-        const event = await axios.get(`event`);
+        const event = await axios.get(`event/listener/${l.listenerId}`);
         this.processEvent(event);
         await longPolling();
       } catch (e) {
         if (e.message === 'STOP_LONG_POLLING') {
           // expected
         } else {
+          l = await axios.post(`event/listeners`);
           await longPolling();
         }
       }
@@ -54,17 +56,6 @@ class EventManager {
     this.addListener('EDITOR_UPDATE', editorId, callback);
   }
 
-  onEditorsUpdate = (callback) => {
-    const eventType = 'EDITOR_UPDATE';
-    if (!this.listeners[eventType]) {
-      this.listeners[eventType] = {};
-    }
-    if (!this.listeners[eventType].all) {
-      this.listeners[eventType].all = [];
-    }
-    this.listeners[eventType].all.push(callback);
-  }
-
   onEditorLiveUpdate = (editorId, callback) => {
     this.addListener('EDITOR_CONTENT_LIVE_UPDATE', editorId, callback);
   }
@@ -83,19 +74,19 @@ class EventManager {
     this.listeners[eventType][editorId].push(callback);
   }
 
+  onEditorsUpdate = (callback) => {
+    this.addListenerForAllEditors('EDITOR_UPDATE', callback);
+  }
+
   onEditorCreated = (callback) => {
-    const eventType = 'EDITOR_CREATED';
-    if (!this.listeners[eventType]) {
-      this.listeners[eventType] = {};
-    }
-    if (!this.listeners[eventType].all) {
-      this.listeners[eventType].all = [];
-    }
-    this.listeners[eventType].all.push(callback);
+    this.addListenerForAllEditors('EDITOR_CREATED', callback);
   }
 
   onEditorRemoved = (callback) => {
-    const eventType = 'EDITOR_REMOVED';
+    this.addListenerForAllEditors('EDITOR_REMOVED', callback);
+  }
+
+  addListenerForAllEditors(eventType, callback) {
     if (!this.listeners[eventType]) {
       this.listeners[eventType] = {};
     }
