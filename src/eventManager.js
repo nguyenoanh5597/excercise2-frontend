@@ -39,10 +39,30 @@ class EventManager {
         }
       })
     }
+    if (this.listeners[eventType].all) {
+      this.listeners[eventType].all.forEach(callback => {
+        try {
+          callback(event);
+        } catch (e) {
+          // ignore
+        }
+      })
+    }
   }
 
   onEditorUpdate = (editorId, callback) => {
     this.addListener('EDITOR_UPDATE', editorId, callback);
+  }
+
+  onEditorsUpdate = (callback) => {
+    const eventType = 'EDITOR_UPDATE';
+    if (!this.listeners[eventType]) {
+      this.listeners[eventType] = {};
+    }
+    if (!this.listeners[eventType].all) {
+      this.listeners[eventType].all = [];
+    }
+    this.listeners[eventType].all.push(callback);
   }
 
   onEditorLiveUpdate = (editorId, callback) => {
@@ -61,6 +81,28 @@ class EventManager {
       this.listeners[eventType][editorId] = [];
     }
     this.listeners[eventType][editorId].push(callback);
+  }
+
+  onEditorCreated = (callback) => {
+    const eventType = 'EDITOR_CREATED';
+    if (!this.listeners[eventType]) {
+      this.listeners[eventType] = {};
+    }
+    if (!this.listeners[eventType].all) {
+      this.listeners[eventType].all = [];
+    }
+    this.listeners[eventType].all.push(callback);
+  }
+
+  onEditorRemoved = (callback) => {
+    const eventType = 'EDITOR_REMOVED';
+    if (!this.listeners[eventType]) {
+      this.listeners[eventType] = {};
+    }
+    if (!this.listeners[eventType].all) {
+      this.listeners[eventType].all = [];
+    }
+    this.listeners[eventType].all.push(callback);
   }
 }
 
