@@ -68,6 +68,7 @@
 import axios from "../axios";
 import Navbar from './common/Navbar.vue';
 import Overlay from './common/Overlay.vue';
+import eventManager from '@/eventManager';
 
 export default {
   components: {
@@ -90,6 +91,25 @@ export default {
   computed: {},
   mounted() {
     this.getEditors();
+    eventManager.onEditorsUpdate((event)=>{
+      let ed = this.editors.find((e)=>e.id === event.editorId);
+      Object.assign(ed, {
+        displayName: event.data.displayName,
+        public: event.data.public === 'true',
+        version: parseInt(event.data.version),
+      })
+    })
+
+    eventManager.onEditorCreated((event)=>{
+      this.editors.push(event.data.newEditor);
+    })
+
+    eventManager.onEditorRemoved((event)=>{
+      const index = this.editors.findIndex((e)=>e.id === event.editorId);
+      if (index >= 0) {
+        this.editors.splice(index, 1);
+      }
+    })
   },
   methods: {
     async getEditors() {

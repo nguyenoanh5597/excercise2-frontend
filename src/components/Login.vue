@@ -36,6 +36,7 @@
 <script>
 import axios from '../axios';
 import * as localstorageUtil from '../utils/localstorage';
+import eventManager from '@/eventManager';
 
 export default {
   data() {
@@ -54,6 +55,7 @@ export default {
         localstorageUtil.setItem("token", response.token);
         localstorageUtil.setItem("currentUser", JSON.stringify(response.userInfo));
         this.$router.push({ path: 'home' });
+        eventManager.start();
       } catch (error) {
         this.$toasted.show("login fail!", {type:"error"});
       }
