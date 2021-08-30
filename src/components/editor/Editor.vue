@@ -25,9 +25,10 @@
           label="Content"
           v-model="editor.content"
         ></v-textarea> -->
-        <quill-editor ref="myQuillEditor"
-                      v-model="editor.content"
-                      @ready="onEditorReady"/>
+        <quill-editor 
+          v-model="editor.content"
+          @ready="onEditorReady"
+        />
       </div>
     </div>
 
@@ -63,6 +64,9 @@ export default {
     //     console.log(val);
     //   }
     // },
+    // "editor.content": function (val, oldVal) {
+    //     console.log(val);
+    // },
   },
   mounted() {
     this.getEditorById();
@@ -83,6 +87,7 @@ export default {
       }
     },
     async updateEditor() {
+      // console.log(this.editor.content)
       try {
         await axios.put(`editor/${this.editor.id}`, this.editor);
         this.$toasted.show("update success");
@@ -94,7 +99,6 @@ export default {
       let editorId = this.$route.params.id;
       eventManager.onEditorUpdate(editorId, (event) => {
         const {data} = event;
-        // this.setQuillContent(data.content);
         if (data.public === "true") {
           window.location.reload();
         }
@@ -103,7 +107,7 @@ export default {
       eventManager.onEditorLiveUpdate(editorId, (event) => {
         const {data} = event;
         if (data.sourceId === this.sourceId) {
-          return
+          return;
         }
         this.setQuillContent(data.content);
       })
@@ -134,11 +138,11 @@ export default {
       if (this.quill) {
         let delta = JSON.parse(content);
         if (delta) {
-          this.quill.setContents(delta, 'silent')
+          this.editor.content = this.quill.root.innerHTML;
+          this.quill.setContents(delta, 'silent');
         }
       }
-    }
-
+    },
   },
   beforeDestroy() {
     // TODO: remove listener
