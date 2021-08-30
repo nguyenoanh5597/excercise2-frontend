@@ -90,7 +90,8 @@ export default {
     },
     async updateEditor() {
       try {
-        await axios.put(`editor/${this.editor.id}`, this.editor);
+        const postData = {...this.editor, content: this.quill.root.innerHTML};
+        await axios.put(`editor/${this.editor.id}`, postData);
         this.$toasted.show("update success");
       } catch (error) {
         this.$toasted.show("update fail!", {type: "error"});
@@ -147,7 +148,6 @@ export default {
       if (this.quill) {
         let delta = JSON.parse(content);
         if (delta) {
-          this.editor.content = this.quill.root.innerHTML;
           this.quill.setContents(delta, 'silent');
         }
       }
