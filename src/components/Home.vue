@@ -92,7 +92,6 @@ export default {
   mounted() {
     this.getEditors();
     eventManager.onEditorsUpdate((event)=>{
-      console.log('Home', 'onEditorsUpdate', event);
       let ed = this.editors.find((e)=>e.id === event.editorId);
       Object.assign(ed, {
         displayName: event.data.displayName,
@@ -102,12 +101,10 @@ export default {
     })
 
     eventManager.onEditorCreated((event)=>{
-      console.log('Home', 'onEditorCreated', event);
       this.editors.push(event.data.newEditor);
     })
 
     eventManager.onEditorRemoved((event)=>{
-      console.log('Home', 'onEditorRemoved', event);
       const index = this.editors.findIndex((e)=>e.id === event.editorId);
       if (index >= 0) {
         this.editors.splice(index, 1);

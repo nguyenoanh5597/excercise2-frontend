@@ -64,9 +64,11 @@ export default {
     //     console.log(val);
     //   }
     // },
-    // "editor.content": function (val, oldVal) {
-    //     console.log(val);
-    // },
+    editor(val) {
+      this.loading = true;
+      this.editor = val;
+      this.loading = false;
+    },
   },
   mounted() {
     this.getEditorById();
@@ -78,8 +80,8 @@ export default {
         this.loading = true;
         this.editor = await axios.get(`editor/${this.$route.params.id}`);
         if (this.dirs.length < 2) {
-          this.dirs.push({text: this.editor.displayName, disable: true});
-        }
+          this.dirs.push({text: this.editor.displayName, disable: true}); //add dirs
+        } 
       } catch (e) {
         this.$toasted.show("editor not found!", {type: "error"});
       } finally {
@@ -87,7 +89,6 @@ export default {
       }
     },
     async updateEditor() {
-      // console.log(this.editor.content)
       try {
         await axios.put(`editor/${this.editor.id}`, this.editor);
         this.$toasted.show("update success");
@@ -97,10 +98,18 @@ export default {
     },
     autoRefresh() {
       let editorId = this.$route.params.id;
+
       eventManager.onEditorUpdate(editorId, (event) => {
         const {data} = event;
-        if (data.public === "true") {
-          window.location.reload();
+        if(data.public == "true"){
+          if(this.editor.id && this.editor.displayName !== data.displayName){
+            this.dirs[1].text = data.displayName; // for change name only
+          }else{
+            this.getEditorById();
+          }
+        }else{
+          this.editor = {};
+          this.dirs.splice(1, 1);
         }
       })
 
@@ -116,8 +125,8 @@ export default {
         const {data} = event;
         const isPublic = data.public === 'true';
         if (!isPublic) {
-          alert('You cannot view this page anymore!');
-          window.location.reload();
+          this.editor = {};
+          this.dirs.splice(1, 1);
         }
       })
 
